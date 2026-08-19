@@ -17,6 +17,7 @@ class BattleSceneRenderer {
   Image? heroImage;
   final List<Image> heroWalkFrames = [];
   final Map<MonsterType, Image> monsterImages = {};
+  final List<Image> goblinAttackFrames = [];
 
   void render({
     required Canvas canvas,
@@ -25,6 +26,7 @@ class BattleSceneRenderer {
     required double hitFlashTime,
     required int heroWalkFrame,
     required double monsterHitTime,
+    required double monsterAttackTime,
     required double monsterDefeatTime,
   }) {
     final w = size.x;
@@ -82,13 +84,27 @@ class BattleSceneRenderer {
           canvas.rotate(-defeatProgress * 1.35);
           canvas.translate(-monsterX, -groundY);
         }
-        _drawSprite(
-          canvas,
-          monster,
-          bottomCenter: Offset(monsterX, groundY),
-          maxSize: const Size(94, 122),
-          faceLeft: true,
-        );
+        if (state.currentMonster == MonsterType.goblin &&
+            monsterAttackTime > 0 &&
+            goblinAttackFrames.length == 4) {
+          final elapsed = .64 - monsterAttackTime;
+          final frame = (elapsed / .16).floor().clamp(0, 3);
+          _drawSprite(
+            canvas,
+            goblinAttackFrames[frame],
+            bottomCenter: Offset(monsterX, groundY),
+            maxSize: const Size(94, 122),
+            faceLeft: true,
+          );
+        } else {
+          _drawSprite(
+            canvas,
+            monster,
+            bottomCenter: Offset(monsterX, groundY),
+            maxSize: const Size(94, 122),
+            faceLeft: true,
+          );
+        }
         canvas.restore();
       }
     }

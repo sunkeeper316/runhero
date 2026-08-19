@@ -19,6 +19,7 @@ class RunHeroGame extends FlameGame {
   double hitFlashTime = 0;
   double walkAnimationTime = 0;
   double monsterHitTime = 0;
+  double monsterAttackTime = 0;
   double monsterDefeatTime = 0;
   double victoryDelayTime = 0;
   int _seenMessage = 0;
@@ -35,6 +36,11 @@ class RunHeroGame extends FlameGame {
     for (final monster in MonsterType.values) {
       _renderer.monsterImages[monster] = await images.load(
         'characters/${monster.assetName}',
+      );
+    }
+    for (var frame = 1; frame <= 4; frame++) {
+      _renderer.goblinAttackFrames.add(
+        await images.load('characters/goblin_attack_$frame.png'),
       );
     }
   }
@@ -54,6 +60,7 @@ class RunHeroGame extends FlameGame {
     if (size.x <= 0) return;
     hitFlashTime = math.max(0, hitFlashTime - dt);
     monsterHitTime = math.max(0, monsterHitTime - dt);
+    monsterAttackTime = math.max(0, monsterAttackTime - dt);
     monsterDefeatTime = math.max(0, monsterDefeatTime - dt);
     if (_seenMessage != state.messageSerial) {
       _seenMessage = state.messageSerial;
@@ -86,6 +93,7 @@ class RunHeroGame extends FlameGame {
 
     final outcome = state.resolveBattle();
     monsterHitTime = .18;
+    monsterAttackTime = .64;
     knockbackTime = .42;
     if (outcome == BattleOutcome.victory) {
       monsterDefeatTime = .42;
@@ -108,6 +116,7 @@ class RunHeroGame extends FlameGame {
       hitFlashTime: hitFlashTime,
       heroWalkFrame: (walkAnimationTime / .16).floor() % 4,
       monsterHitTime: monsterHitTime,
+      monsterAttackTime: monsterAttackTime,
       monsterDefeatTime: monsterDefeatTime,
     );
   }
