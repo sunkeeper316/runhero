@@ -1,17 +1,111 @@
-# runhero
+# Run Hero
 
-A new Flutter project.
+Run Hero 是一款以 Flutter 與 Flame 製作的直向爬塔自動戰鬥遊戲。目前專案處於「核心玩法原型可遊玩」階段：勇者會自動前進並與怪物交戰，玩家則透過能力點、金幣與隨機掉落的裝備持續強化角色，挑戰更高樓層。
 
-## Getting Started
+![Run Hero 角色一覽](assets/images/characters/runhero-character-lineup.png)
 
-This project is a starting point for a Flutter application.
+## 目前進度
 
-A few resources to get you started if this is your first Flutter project:
+### 已完成
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- 自動戰鬥循環：勇者自動移動、接敵、互相造成傷害
+- 樓層系統：擊敗怪物後播放倒下動畫，再進入下一層
+- 失敗機制：勇者死亡後回到第 1 層，並保留最高樓層紀錄
+- 五種循環出現的怪物：哥布林、史萊姆、獸人、赤鬼、角魔
+- 動態難度：怪物生命、攻擊與防禦隨樓層提升
+- 經驗與升級：升級後獲得能力點，可提升攻擊、防禦或生命
+- 金幣獎勵：通關後依樓層取得金幣
+- 寶箱掉落：擊敗怪物時有 30% 機率取得隨機裝備
+- 五個裝備欄位：武器、頭盔、衣服、鞋子、戒指
+- 裝備強化：已取得的裝備可消耗金幣升級
+- 掉寶提示：取得裝備時顯示對話框，並自動放入裝備欄
+- 塔樓瀏覽：可上下滑動查看已抵達的樓層
+- 像素角色素材與四幀勇者走路動畫
+- 戰鬥視覺效果：受擊閃光、怪物震動、擊倒旋轉與擊退
+- 基本 Widget 與遊戲狀態測試
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 尚未完成／規劃中
+
+- 遊戲進度的本機儲存與讀取
+- 音效、背景音樂與震動回饋
+- 主選單、設定、教學與暫停功能
+- 主動技能、敵人技能與更豐富的戰鬥策略
+- Boss、關卡事件及更多怪物／裝備內容
+- 完整的角色與怪物動畫
+- 遊戲平衡調整、效能檢查與多尺寸裝置驗證
+- 發佈前的 App 圖示、啟動畫面與商店資料
+
+## 遊戲方式
+
+1. 啟動後勇者會自動向怪物前進並戰鬥，不需要手動攻擊。
+2. 擊敗怪物可獲得金幣與經驗，並有機會取得寶箱裝備。
+3. 升級後，點擊「傷害」、「防禦」或「生命」卡片消耗能力點。
+4. 取得裝備後，點擊對應裝備卡片消耗金幣強化。
+5. 勇者死亡會回到第 1 層；目前能力與裝備不會重置，但關閉 App 後尚不會保存進度。
+
+## 數值與規則
+
+- 傷害最低為 1，計算方式為 `攻擊力 - 防禦力`。
+- 通關金幣為 `18 + 樓層 × 7`。
+- 通關經驗為 `25 + 樓層 × 5`。
+- 升級所需經驗為 `60 +（目前等級 - 1）× 30`。
+- 裝備掉落率目前為 30%。
+- 裝備強化費用為 `60 + 目前裝備等級 × 45`。
+
+## 技術架構
+
+- Flutter：App 介面、狀態呈現與升級面板
+- Flame：遊戲更新迴圈、角色移動與戰鬥場景繪製
+- `ChangeNotifier`：管理戰鬥、玩家資源、能力值與裝備狀態
+- Material 3：介面元件與深色主題
+
+主要程式分層如下：
+
+```text
+lib/
+├── app/                         # App 與主題設定
+├── game/
+│   ├── application/             # 遊戲狀態與核心規則
+│   ├── domain/models/           # 戰鬥、怪物、裝備與升級模型
+│   ├── flame/                   # Flame 遊戲迴圈與場景繪製
+│   └── presentation/            # 頁面與 Flutter UI 元件
+└── main.dart                    # 程式進入點
+```
+
+## 開發環境與執行
+
+需求：
+
+- Flutter SDK（專案目前使用 Dart SDK `^3.12.2`）
+- 可用的 Flutter 目標平台或模擬器
+
+安裝套件並啟動：
+
+```bash
+flutter pub get
+flutter run
+```
+
+程式碼檢查與測試：
+
+```bash
+flutter analyze
+flutter test
+```
+
+## 測試涵蓋
+
+目前測試包含：
+
+- 戰鬥與升級介面是否正常顯示
+- 傷害最低值
+- 死亡後返回第 1 層
+- 怪物依樓層循環
+- 勝利動畫結束後才建立下一層
+- 經驗升級與能力點獎勵
+- 寶箱掉落與自動裝備
+- 金幣強化裝備及能力值變化
+
+## 目前限制
+
+這仍是早期原型。所有遊戲資料目前只存在記憶體中，重新啟動 App 後會重置；遊戲也尚未加入登入、連線服務、付費內容或正式發佈流程。
