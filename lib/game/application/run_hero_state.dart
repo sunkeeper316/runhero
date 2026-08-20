@@ -51,6 +51,54 @@ class RunHeroState extends ChangeNotifier {
       MonsterType.values[(floor - 1) % MonsterType.values.length];
   int gearUpgradeCost(GearSlot slot) => 60 + gear[slot]! * 45;
 
+  Map<String, dynamic> toProgressJson() => {
+    'floor': floor,
+    'highestFloor': highestFloor,
+    'coins': coins,
+    'experience': experience,
+    'level': level,
+    'statPoints': statPoints,
+    'chestsOpened': chestsOpened,
+    'attackLevel': attackLevel,
+    'defenseLevel': defenseLevel,
+    'healthLevel': healthLevel,
+    'gear': {for (final entry in gear.entries) entry.key.name: entry.value},
+  };
+
+  void restoreProgress(Map<String, dynamic> progress) {
+    int savedInt(String key, int fallback, {int minimum = 0}) {
+      final value = progress[key];
+      return value is num ? math.max(minimum, value.toInt()) : fallback;
+    }
+
+    floor = savedInt('floor', floor, minimum: 1);
+    highestFloor = math.max(
+      floor,
+      savedInt('highestFloor', highestFloor, minimum: 1),
+    );
+    coins = savedInt('coins', coins);
+    experience = savedInt('experience', experience);
+    level = savedInt('level', level, minimum: 1);
+    statPoints = savedInt('statPoints', statPoints);
+    chestsOpened = savedInt('chestsOpened', chestsOpened);
+    attackLevel = savedInt('attackLevel', attackLevel, minimum: 1);
+    defenseLevel = savedInt('defenseLevel', defenseLevel, minimum: 1);
+    healthLevel = savedInt('healthLevel', healthLevel, minimum: 1);
+
+    final savedGear = progress['gear'];
+    if (savedGear is Map) {
+      for (final slot in GearSlot.values) {
+        final value = savedGear[slot.name];
+        if (value is num) gear[slot] = math.max(0, value.toInt());
+      }
+    }
+
+    heroHp = heroMaxHp;
+    monsterHp = monsterMaxHp;
+    _say('進度已載入，繼續挑戰第 $floor 層！');
+    notifyListeners();
+  }
+
   double damage(double attack, double defense) => math.max(1, attack - defense);
 
   BattleOutcome resolveBattle() {

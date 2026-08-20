@@ -10,6 +10,9 @@ import 'package:runhero/game/flame/renderers/battle_scene_renderer.dart';
 class RunHeroGame extends FlameGame {
   RunHeroGame(this.state) : _renderer = BattleSceneRenderer(state);
 
+  static const double _heroRunSpeed = 130;
+  static const double _heroRunFrameDuration = .1;
+
   final RunHeroState state;
   final BattleSceneRenderer _renderer;
 
@@ -88,7 +91,7 @@ class RunHeroGame extends FlameGame {
     }
 
     final monsterX = size.x - BattleSceneRenderer.monsterRightPadding;
-    heroX += 85 * dt;
+    heroX += _heroRunSpeed * dt;
     if (heroX + 27 < monsterX - 28) return;
 
     final outcome = state.resolveBattle();
@@ -114,7 +117,7 @@ class RunHeroGame extends FlameGame {
       size: size,
       heroX: heroX,
       hitFlashTime: hitFlashTime,
-      heroWalkFrame: (walkAnimationTime / .16).floor() % 4,
+      heroWalkFrame: (walkAnimationTime / _heroRunFrameDuration).floor() % 4,
       monsterHitTime: monsterHitTime,
       monsterAttackTime: monsterAttackTime,
       monsterDefeatTime: monsterDefeatTime,

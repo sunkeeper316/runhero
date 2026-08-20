@@ -145,16 +145,19 @@ class _FloorRecord extends StatelessWidget {
       child: Stack(
         children: [
           const Positioned.fill(child: CustomPaint(painter: _StonePainter())),
-          const Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 25,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Color(0xff293c35),
-                border: Border(
-                  top: BorderSide(color: Color(0xff496451), width: 5),
+          const Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: FractionallySizedBox(
+                widthFactor: 1,
+                heightFactor: .24,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Color(0xff293c35),
+                    border: Border(
+                      top: BorderSide(color: Color(0xff496451), width: 5),
+                    ),
+                  ),
                 ),
               ),
             ),

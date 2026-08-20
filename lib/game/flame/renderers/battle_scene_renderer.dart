@@ -95,6 +95,7 @@ class BattleSceneRenderer {
             bottomCenter: Offset(monsterX, groundY),
             maxSize: const Size(94, 122),
             faceLeft: true,
+            groundInset: 16,
           );
         } else {
           _drawSprite(
@@ -103,6 +104,7 @@ class BattleSceneRenderer {
             bottomCenter: Offset(monsterX, groundY),
             maxSize: const Size(94, 122),
             faceLeft: true,
+            groundInset: 5,
           );
         }
         canvas.restore();
@@ -171,6 +173,7 @@ class BattleSceneRenderer {
     required Offset bottomCenter,
     required Size maxSize,
     required bool faceLeft,
+    double groundInset = 0,
   }) {
     final source = Rect.fromLTWH(
       0,
@@ -183,8 +186,9 @@ class BattleSceneRenderer {
       maxSize.height / image.height,
     );
     final size = Size(image.width * scale, image.height * scale);
+    final groundedCenter = bottomCenter.translate(0, groundInset);
     final destination = Rect.fromCenter(
-      center: bottomCenter.translate(0, -size.height / 2),
+      center: groundedCenter.translate(0, -size.height / 2),
       width: size.width,
       height: size.height,
     );
@@ -194,7 +198,7 @@ class BattleSceneRenderer {
 
     canvas.save();
     if (faceLeft) {
-      canvas.translate(bottomCenter.dx * 2, 0);
+      canvas.translate(groundedCenter.dx * 2, 0);
       canvas.scale(-1, 1);
     }
     canvas.drawImageRect(image, source, destination, paint);

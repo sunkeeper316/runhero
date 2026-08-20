@@ -3,10 +3,13 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:runhero/main.dart';
 import 'package:runhero/game/domain/models/gear_slot.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   testWidgets('shows the battle and upgrade interface', (tester) async {
+    SharedPreferences.setMockInitialValues({});
     await tester.pumpWidget(const RunHeroApp());
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('能力點 0'), findsOneWidget);
     expect(find.text('傷害 30'), findsOneWidget);
@@ -99,6 +102,32 @@ void main() {
     expect(state.heroAttack, attackBeforeUpgrade + 12);
     expect(state.coins, 95);
     state.dispose();
+  });
+
+  test('game progress restores permanent upgrades and resets the battle', () {
+    final original = RunHeroState()
+      ..floor = 4
+      ..highestFloor = 7
+      ..coins = 321
+      ..experience = 22
+      ..level = 3
+      ..statPoints = 2
+      ..attackLevel = 4
+      ..defenseLevel = 3
+      ..healthLevel = 2
+      ..gear[GearSlot.weapon] = 5;
+    final restored = RunHeroState()..restoreProgress(original.toProgressJson());
+
+    expect(restored.floor, 4);
+    expect(restored.highestFloor, 7);
+    expect(restored.coins, 321);
+    expect(restored.level, 3);
+    expect(restored.attackLevel, 4);
+    expect(restored.gear[GearSlot.weapon], 5);
+    expect(restored.heroHp, restored.heroMaxHp);
+    expect(restored.monsterHp, restored.monsterMaxHp);
+    original.dispose();
+    restored.dispose();
   });
 }
 
