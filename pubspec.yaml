@@ -63,6 +63,7 @@ flutter:
   assets:
     - assets/images/characters/
     - assets/images/characters/hero_walk/
+    - assets/images/characters/hero_attack/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

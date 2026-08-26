@@ -12,10 +12,12 @@ class BattleSceneRenderer {
 
   static const double heroStartX = 58;
   static const double monsterRightPadding = 60;
+  static const double _heroAttackDuration = .6;
 
   final RunHeroState state;
   Image? heroImage;
   final List<Image> heroWalkFrames = [];
+  final List<Image> heroAttackFrames = [];
   final Map<MonsterType, Image> monsterImages = {};
   final List<Image> goblinAttackFrames = [];
 
@@ -25,6 +27,7 @@ class BattleSceneRenderer {
     required double heroX,
     required double hitFlashTime,
     required int heroWalkFrame,
+    required double heroAttackTime,
     required double monsterHitTime,
     required double monsterAttackTime,
     required double monsterDefeatTime,
@@ -55,7 +58,18 @@ class BattleSceneRenderer {
         isHero: false,
       );
     } else {
-      if (hasWalkFrames) {
+      if (heroAttackTime > 0 && heroAttackFrames.length == 4) {
+        final elapsed = _heroAttackDuration - heroAttackTime;
+        final frame = (elapsed / _heroAttackDuration * heroAttackFrames.length)
+            .floor()
+            .clamp(0, heroAttackFrames.length - 1);
+        _drawAttackFrame(
+          canvas,
+          heroAttackFrames[frame],
+          frameIndex: frame,
+          bottomCenter: Offset(heroX, groundY),
+        );
+      } else if (hasWalkFrames) {
         _drawWalkFrame(
           canvas,
           heroWalkFrames[heroWalkFrame],
@@ -226,6 +240,40 @@ class BattleSceneRenderer {
       center: bottomCenter.translate(0, -size.height / 2),
       width: size.width,
       height: size.height,
+    );
+    canvas.drawImageRect(
+      frame,
+      source,
+      destination,
+      Paint()
+        ..isAntiAlias = false
+        ..filterQuality = FilterQuality.none,
+    );
+  }
+
+  void _drawAttackFrame(
+    Canvas canvas,
+    Image frame, {
+    required int frameIndex,
+    required Offset bottomCenter,
+  }) {
+    // Attack frames contain more transparent padding than the walk frames.
+    // Anchor each pose by its feet instead of the bottom of the image canvas.
+    const feetY = [540.0, 541.0, 559.0, 539.0];
+    const displayWidth = 94.0;
+    final scale = displayWidth / frame.width;
+    final displayHeight = frame.height * scale;
+    final source = Rect.fromLTWH(
+      0,
+      0,
+      frame.width.toDouble(),
+      frame.height.toDouble(),
+    );
+    final destination = Rect.fromLTWH(
+      bottomCenter.dx - displayWidth / 2,
+      bottomCenter.dy - feetY[frameIndex] * scale,
+      displayWidth,
+      displayHeight,
     );
     canvas.drawImageRect(
       frame,

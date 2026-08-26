@@ -12,6 +12,8 @@ class RunHeroGame extends FlameGame {
 
   static const double _heroRunSpeed = 130;
   static const double _heroRunFrameDuration = .1;
+  static const double heroAttackDuration = .6;
+  static const double _heroAttackHitTime = .3;
 
   final RunHeroState state;
   final BattleSceneRenderer _renderer;
@@ -21,10 +23,12 @@ class RunHeroGame extends FlameGame {
   double pauseTime = .5;
   double hitFlashTime = 0;
   double walkAnimationTime = 0;
+  double heroAttackTime = 0;
   double monsterHitTime = 0;
   double monsterAttackTime = 0;
   double monsterDefeatTime = 0;
   double victoryDelayTime = 0;
+  bool _attackDamageApplied = false;
   int _seenMessage = 0;
 
   @override
@@ -34,6 +38,11 @@ class RunHeroGame extends FlameGame {
     for (var frame = 1; frame <= 4; frame++) {
       _renderer.heroWalkFrames.add(
         await images.load('characters/hero_walk/hero_walk_$frame.png'),
+      );
+    }
+    for (var frame = 1; frame <= 4; frame++) {
+      _renderer.heroAttackFrames.add(
+        await images.load('characters/hero_attack/hero_attack_$frame.png'),
       );
     }
     for (final monster in MonsterType.values) {
@@ -69,6 +78,28 @@ class RunHeroGame extends FlameGame {
       _seenMessage = state.messageSerial;
       hitFlashTime = .18;
     }
+    if (heroAttackTime > 0) {
+      heroAttackTime = math.max(0, heroAttackTime - dt);
+      final attackElapsed = heroAttackDuration - heroAttackTime;
+      if (!_attackDamageApplied && attackElapsed >= _heroAttackHitTime) {
+        _attackDamageApplied = true;
+        final outcome = state.resolveBattle();
+        monsterHitTime = .18;
+        monsterAttackTime = .64;
+        knockbackTime = .42;
+        if (outcome == BattleOutcome.victory) {
+          monsterDefeatTime = .42;
+          victoryDelayTime = .55;
+          knockbackTime = 0;
+        } else if (outcome == BattleOutcome.defeat) {
+          heroAttackTime = 0;
+          heroX = BattleSceneRenderer.heroStartX;
+          knockbackTime = 0;
+          pauseTime = .8;
+        }
+      }
+      return;
+    }
     if (victoryDelayTime > 0) {
       victoryDelayTime -= dt;
       if (victoryDelayTime <= 0) {
@@ -94,19 +125,8 @@ class RunHeroGame extends FlameGame {
     heroX += _heroRunSpeed * dt;
     if (heroX + 27 < monsterX - 28) return;
 
-    final outcome = state.resolveBattle();
-    monsterHitTime = .18;
-    monsterAttackTime = .64;
-    knockbackTime = .42;
-    if (outcome == BattleOutcome.victory) {
-      monsterDefeatTime = .42;
-      victoryDelayTime = 1.05;
-      knockbackTime = 0;
-    } else if (outcome == BattleOutcome.defeat) {
-      heroX = BattleSceneRenderer.heroStartX;
-      knockbackTime = 0;
-      pauseTime = .8;
-    }
+    heroAttackTime = heroAttackDuration;
+    _attackDamageApplied = false;
   }
 
   @override
@@ -118,6 +138,7 @@ class RunHeroGame extends FlameGame {
       heroX: heroX,
       hitFlashTime: hitFlashTime,
       heroWalkFrame: (walkAnimationTime / _heroRunFrameDuration).floor() % 4,
+      heroAttackTime: heroAttackTime,
       monsterHitTime: monsterHitTime,
       monsterAttackTime: monsterAttackTime,
       monsterDefeatTime: monsterDefeatTime,

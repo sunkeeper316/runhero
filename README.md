@@ -2,8 +2,6 @@
 
 Run Hero 是一款以 Flutter 與 Flame 製作的直向爬塔自動戰鬥遊戲。目前專案處於「核心玩法原型可遊玩」階段：勇者會自動前進並與怪物交戰，玩家則透過能力點、金幣與隨機掉落的裝備持續強化角色，挑戰更高樓層。
 
-![Run Hero 角色一覽](assets/images/characters/runhero-character-lineup.png)
-
 ## 目前進度
 
 ### 已完成
